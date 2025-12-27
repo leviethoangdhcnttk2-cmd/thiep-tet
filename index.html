@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chúc Mừng Năm Mới</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #ffd700;
+}
+
+.hidden {
+  display: none;
+}
+
+h1 {
+  font-size: 2.2em;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #fff;
+  font-size: 1.15em;
+  line-height: 1.6;
+}
+
+button {
+  margin-top: 20px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(135deg,#ffd700,#ffb700);
+  color: #000;
+  font-size: 1em;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Canvas pháo hoa -->
+<canvas id="fireworks"></canvas>
+
+<!-- Audio (FIX iOS) -->
+<audio id="music" loop playsinline preload="auto">
+  <source src="nhac-tet.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Màn hình mở -->
+<div id="start" class="center">
+  <h1>🧧 Lì Xì Đầu Năm 🧧</h1>
+  <p>Chạm để mở & bật nhạc 🎵</p>
+  <button onclick="startCard()">Mở lì xì 🎉</button>
+</div>
+
+<!-- Nội dung chính -->
+<div id="card" class="center hidden">
+  <h1>🎊 Chúc Mừng Năm Mới <span id="name"></span> 🎊</h1>
+  <p>
+    Chúc năm mới an khang 🌸<br>
+    Sức khỏe dồi dào 💪<br>
+    Công việc hanh thông 🚀<br>
+    Tiền vào như nước 💰
+  </p>
+</div>
+
+<script>
+// ===== LẤY TÊN TỪ LINK =====
+const params = new URLSearchParams(window.location.search);
+document.getElementById("name").innerText =
+  params.get("name") || "bạn";
+
+// ===== MỞ THIỆP + BẬT NHẠC =====
+function startCard() {
+  const music = document.getElementById("music");
+
+  music.muted = false;
+  music.volume = 0.7;
+
+  music.play().then(() => {
+    console.log("Nhạc đã phát");
+  }).catch(err => {
+    alert("❌ Không phát được nhạc.\nHãy bật âm lượng và thử lại.");
+    console.log(err);
+  });
+
+  document.getElementById("start").classList.add("hidden");
+  document.getElementById("card").classList.remove("hidden");
+
+  startFireworks();
+}
+
+// ===== PHÁO HOA =====
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+function rand(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function createFirework() {
+  const x = rand(100, canvas.width - 100);
+  const y = rand(50, canvas.height / 2);
+
+  for (let i = 0; i < 50; i++) {
+    particles.push({
+      x,
+      y,
+      vx: rand(-3, 3),
+      vy: rand(-3, 3),
+      alpha: 1
+    });
+  }
+}
+
+function animate() {
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.015;
+
+    ctx.fillStyle = `rgba(255,215,0,${p.alpha})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (p.alpha <= 0) particles.splice(i, 1);
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function startFireworks() {
+  setInterval(createFirework, 1200);
+  animate();
+}
+
+window.onresize = () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+};
+</script>
+
+</body>
+</html>
